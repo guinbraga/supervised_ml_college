@@ -125,18 +125,21 @@ lr = LinearRegression().fit(train_prepared, y_train)
 X_test = test.drop('Rings', axis=1)
 y_test = test['Rings']
 test_prepared = preprocessing.fit_transform(X_test)
+train_predictions = lr.predict(train_prepared)
+emp_rmse = root_mean_squared_error(y_train, train_predictions)
+emp_rmse
+```
+
+Our Linear model has a empirical risk of 2.17152
+
+```python
 age_predictions = lr.predict(test_prepared)
 rmse = root_mean_squared_error(y_test, age_predictions)
 rmse
 ```
 
-Our Linear model has a global risk of 2.02092
-
-```python
-train_predictions = lr.predict(train_prepared)
-emp_rmse = root_mean_squared_error(y_train, train_predictions)
-emp_rmse
-```
+And a global risk of 2.0209, even lower!
+This gives us a difference of 0.15062
 
 ### Tree Regressor
 
@@ -145,7 +148,20 @@ from sklearn.tree import DecisionTreeRegressor
 
 tree = DecisionTreeRegressor(random_state=47)
 tree.fit(train_prepared, y_train)
+tree_train_predictions = tree.predict(train_prepared)
+emp_risk_tree = root_mean_squared_error(y_train, tree_train_predictions)
+emp_risk_tree
+```
+
+Could it be that our model is perfect??
+
+```python
 tree_predictions = tree.predict(test_prepared)
 rmse_tree = root_mean_squared_error(y_test, tree_predictions)
 rmse_tree
 ```
+
+No, it has simply overfit the data drastically. This
+indicates that the empirical risk of 0.0 is far from
+an estimate of the global risk. Thus, our linear model
+is more trustable for unknown data.
