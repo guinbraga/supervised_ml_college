@@ -25,8 +25,7 @@ from sklearn.linear_model import LinearRegression
 ## Exploratory data analysis
 
 ```python
-df = pd.read_csv('abalone.data.csv')
-df.head()
+df = pd.read_csv('data/abalone.data.csv')
 ```
 
 ```python
@@ -82,11 +81,11 @@ gender_1hot
 ```python
 from sklearn.preprocessing import FunctionTransformer
 sqrt_transformer = FunctionTransformer(np.sqrt)
-sqrt_height = log_transformer.transform(train['Height'])
+sqrt_height = sqrt_transformer.transform(train['Height'])
 sqrt_height.hist()
 ```
 
-### Pipeline
+### Transformation Pipeline
 
 ```python
 from sklearn.compose import ColumnTransformer
@@ -102,7 +101,7 @@ cat_pipeline = Pipeline([
     ('1hot', OneHotEncoder())
 ])
 
-num_attribs = list(train.columns[train.columns != 'gender'])
+num_attribs = list(X_train.columns[X_train.columns != 'gender'])
 cat_attribs = ['gender']
 
 preprocessing = ColumnTransformer([
@@ -110,15 +109,43 @@ preprocessing = ColumnTransformer([
     ('cat', cat_pipeline, cat_attribs),
 ])
 
-train_prepared = preprocessing.fit_transform(train)
+train_prepared = preprocessing.fit_transform(X_train)
 train_prepared.shape
 ```
 
 
-## Model selection and fitness
+
+## Model selection, fitness and evaluation
 
 ### Linear Regression
 
 ```python
-lr = LinearRegression().fit(X_train, y_train)
+from sklearn.metrics import root_mean_squared_error
+lr = LinearRegression().fit(train_prepared, y_train)
+X_test = test.drop('Rings', axis=1)
+y_test = test['Rings']
+test_prepared = preprocessing.fit_transform(X_test)
+age_predictions = lr.predict(test_prepared)
+rmse = root_mean_squared_error(y_test, age_predictions)
+rmse
+```
+
+Our Linear model has a global risk of 2.02092
+
+```python
+train_predictions = lr.predict(train_prepared)
+emp_rmse = root_mean_squared_error(y_train, train_predictions)
+emp_rmse
+```
+
+### Tree Regressor
+
+```python
+from sklearn.tree import DecisionTreeRegressor
+
+tree = DecisionTreeRegressor(random_state=47)
+tree.fit(train_prepared, y_train)
+tree_predictions = tree.predict(test_prepared)
+rmse_tree = root_mean_squared_error(y_test, tree_predictions)
+rmse_tree
 ```
