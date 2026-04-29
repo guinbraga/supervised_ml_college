@@ -95,6 +95,33 @@ print(f'Recall do modelo: {recall}')
 print(f'Precisao do modelo: {precision}')
 ```
 
+### Graph for correct and incorrect classifications
+
+#### Checking hits
+
+```python
+X_all = df_transformed.drop('Species', axis=1) 
+all_predictions = pd.Series(lin_reg.predict(X_all))
+df_transformed['Predictions'] = all_predictions.map(back_transform)
+int_to_species = {0: 'Iris-setosa', 1: 'Iris-versicolor', 2:'Iris-virginica'}
+df_transformed['Predictions'] = df_transformed['Predictions'].map(int_to_species)
+df_transformed['Species'] = df_transformed['Species'].map(int_to_species)
+df_transformed['Correct Label'] = df_transformed['Species'] == df_transformed['Predictions']
+df_transformed.head()
+```
+
+#### Creating graph
+
+```python
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+fig = sns.scatterplot(df_transformed, x='SepalLengthCm', y='PetalLengthCm',
+                       style='Species', hue='Correct Label', hue_order=[True, False])
+fig.set_title('Model Precision in First Label Mapping')
+fig.plot()
+```
+
 ## Shuffling y
 
 ```python
@@ -135,3 +162,28 @@ Percebemos que ao mudar a ordem dos numeros que codificam nossas classes,
 a precisao do modelo muda. Isso provavelmente acontece pela natureza dos dados,
 que ao serem descritas por um modelo de regressão linear, não necessariamente seguem
 uma lógica crescente, acompanhando a linha de regressão.
+
+### Correct classification graphs
+
+```python
+X_all = scnd_df.drop('Species', axis=1) 
+all_predictions = pd.Series(lin_reg.predict(X_all))
+scnd_df['Predictions'] = all_predictions.map(back_transform)
+int_to_species = {0: 'Iris-setosa', 1: 'Iris-versicolor', 2:'Iris-virginica'}
+scnd_df['Predictions'] = scnd_df['Predictions'].map(int_to_species)
+scnd_df['Species'] = scnd_df['Species'].map(int_to_species)
+scnd_df['Correct Label'] = scnd_df['Species'] == scnd_df['Predictions']
+scnd_df.head()
+```
+
+#### Creating graph
+
+```python
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+fig = sns.scatterplot(scnd_df, x='SepalLengthCm', y='PetalLengthCm',
+                       style='Species', hue='Correct Label', hue_order=[True, False] )
+fig.set_title('Model Precision in Second Label Mapping')
+fig.plot()
+```
